@@ -1,0 +1,198 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Enhanced helper functions with security validation
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Check if user is circle owner with additional validation
+    function isCircleOwner(circleId) {
+      return exists(/databases/$(database)/documents/circles/$(circleId)) &&
+             get(/databases/$(database)/documents/circles/$(circleId)).data.ownerId == request.auth.uid;
+    }
+
+    // Check if user is a member of a circle
+    function isCircleMember(circleId) {
+      return exists(/databases/$(database)/documents/circleMembers/$(request.auth.uid + '_' + circleId)) ||
+             exists(/databases/$(database)/documents/circles/$(circleId)) &&
+             get(/databases/$(database)/documents/circles/$(circleId)).data.ownerId == request.auth.uid;
+    }
+
+    // Validate data size and structure
+    function isValidDataSize(data) {
+      return data.size() <= 50; // Limit number of fields
+    }
+
+    // Validate string field length
+    function isValidStringLength(str, maxLength) {
+      return str is string && str.size() <= maxLength;
+    }
+
+    // Validate coordinates
+    function isValidCoordinates(lat, lng) {
+      return lat is number && lng is number &&
+             lat >= -90 && lat <= 90 &&
+             lng >= -180 && lng <= 180;
+    }
+
+    // Enhanced Users collection with data validation
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                      isOwner(userId) &&
+                      isValidDataSize(request.resource.data) &&
+                      request.resource.data.uid == request.auth.uid &&
+                      isValidStringLength(request.resource.data.name, 100) &&
+                      isValidStringLength(request.resource.data.email, 254);
+      allow update: if isAuthenticated() && 
+                      isOwner(userId) &&
+                      isValidDataSize(request.resource.data) &&
+                      (!('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid) &&
+                      (!('name' in request.resource.data) || isValidStringLength(request.resource.data.name, 100)) &&
+                      (!('email' in request.resource.data) || isValidStringLength(request.resource.data.email, 254)) &&
+                      (!('phone' in request.resource.data) || isValidStringLength(request.resource.data.phone, 20));
+      allow delete: if false; // Never allow user deletion
+    }
+
+    // Enhanced Circles collection with data validation
+    match /circles/{circleId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+                      isValidDataSize(request.resource.data) &&
+                      request.resource.data.ownerId == request.auth.uid &&
+                      isValidStringLength(request.resource.data.name, 50) &&
+                      (!('description' in request.resource.data) || isValidStringLength(request.resource.data.description, 200));
+      allow update: if isAuthenticated() && 
+                      isCircleOwner(circleId) &&
+                      isValidDataSize(request.resource.data) &&
+                      (!('ownerId' in request.resource.data) || request.resource.data.ownerId == resource.data.ownerId) &&
+                      (!('name' in request.resource.data) || isValidStringLength(request.resource.data.name, 50)) &&
+                      (!('description' in request.resource.data) || isValidStringLength(request.resource.data.description, 200));
+      allow delete: if isAuthenticated() && isCircleOwner(circleId);
+    }
+
+    // Enhanced Circle Members collection with stricter validation
+    match /circleMembers/{memberId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                      isValidDataSize(request.resource.data) &&
+                      (request.resource.data.userId == request.auth.uid ||
+                       isCircleOwner(request.resource.data.circleId)) &&
+                      request.resource.data.role in ['owner', 'admin', 'member'] &&
+                      isValidStringLength(request.resource.data.userName, 100);
+      allow update: if isAuthenticated() && 
+                      isValidDataSize(request.resource.data) &&
+                      (resource.data.userId == request.auth.uid ||
+                       isCircleOwner(resource.data.circleId)) &&
+                      (!('role' in request.resource.data) || request.resource.data.role in ['owner', 'admin', 'member']) &&
+                      (!('userName' in request.resource.data) || isValidStringLength(request.resource.data.userName, 100));
+      allow delete: if isAuthenticated() && 
+                      (resource.data.userId == request.auth.uid ||
+                       isCircleOwner(resource.data.circleId));
+    }
+
+    // Enhanced Invite Links collection with expiration validation
+    match /inviteLinks/{linkId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                      isValidDataSize(request.resource.data) &&
+                      request.resource.data.createdBy == request.auth.uid &&
+                      request.resource.data.type in ['group', '1on1'] &&
+                      request.resource.data.expiresAt is timestamp &&
+                      request.resource.data.expiresAt > request.time;
+      allow update: if isAuthenticated() && 
+                      isValidDataSize(request.resource.data) &&
+                      resource.data.createdBy == request.auth.uid;
+      allow delete: if isAuthenticated() && 
+                      resource.data.createdBy == request.auth.uid;
+    }
+
+    // Enhanced Locations collection with coordinate validation
+    match /locations/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && 
+                     isOwner(userId) &&
+                     isValidDataSize(request.resource.data) &&
+                     request.resource.data.userId == request.auth.uid &&
+                     isValidCoordinates(request.resource.data.latitude, request.resource.data.longitude) &&
+                     (!('accuracy' in request.resource.data) || request.resource.data.accuracy >= 0) &&
+                     (!('speed' in request.resource.data) || request.resource.data.speed >= 0) &&
+                     (!('batteryLevel' in request.resource.data) || 
+                      (request.resource.data.batteryLevel >= 0 && request.resource.data.batteryLevel <= 100)) &&
+                     (!('address' in request.resource.data) || isValidStringLength(request.resource.data.address, 200));
+      
+      // Enhanced Location history subcollection
+      match /history/{historyId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated() && 
+                       isOwner(userId) &&
+                       isValidDataSize(request.resource.data) &&
+                       request.resource.data.userId == request.auth.uid &&
+                       isValidCoordinates(request.resource.data.latitude, request.resource.data.longitude) &&
+                       request.resource.data.movementType in ['stationary', 'walking', 'driving', 'unknown'];
+      }
+      
+      // Enhanced Trips subcollection
+      match /trips/{tripId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated() && 
+                       isOwner(userId) &&
+                       isValidDataSize(request.resource.data) &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.movementType in ['walking', 'driving', 'mixed'] &&
+                       request.resource.data.totalDistance >= 0 &&
+                       request.resource.data.averageSpeed >= 0 &&
+                       request.resource.data.maxSpeed >= 0;
+      }
+    }
+
+    // Enhanced Emergency Alerts collection with location validation
+    match /emergencyAlerts/{alertId} {
+      allow read: if isAuthenticated() && 
+                    (resource.data.userId == request.auth.uid ||
+                     isCircleMember(resource.data.circleId));
+      allow create: if isAuthenticated() &&
+                      isValidDataSize(request.resource.data) &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.status == 'active' &&
+                      isValidCoordinates(request.resource.data.location.latitude, request.resource.data.location.longitude) &&
+                      (!('message' in request.resource.data) || isValidStringLength(request.resource.data.message, 500));
+      allow update: if isAuthenticated() && 
+                      isValidDataSize(request.resource.data) &&
+                      resource.data.userId == request.auth.uid &&
+                      (!('status' in request.resource.data) || request.resource.data.status in ['active', 'resolved']);
+      allow delete: if false; // Emergency alerts should not be deleted, only resolved
+    }
+
+    // Enhanced Private 1on1 Connections collection
+    match /privateConnections/{connectionId} {
+      allow read: if isAuthenticated() && 
+                    (resource.data.userA == request.auth.uid ||
+                     resource.data.userB == request.auth.uid);
+      allow create: if isAuthenticated() && 
+                      isValidDataSize(request.resource.data) &&
+                      (request.resource.data.userA == request.auth.uid ||
+                       request.resource.data.userB == request.auth.uid) &&
+                      request.resource.data.status in ['active', 'pending'];
+      allow update: if isAuthenticated() && 
+                      isValidDataSize(request.resource.data) &&
+                      (resource.data.userA == request.auth.uid ||
+                       resource.data.userB == request.auth.uid) &&
+                      (!('status' in request.resource.data) || request.resource.data.status in ['active', 'pending']);
+      allow delete: if isAuthenticated() && 
+                      (resource.data.userA == request.auth.uid ||
+                       resource.data.userB == request.auth.uid);
+    }
+
+    // Rate limiting - deny if too many writes in short time
+    match /{document=**} {
+      allow write: if request.time > resource.data.lastWrite + duration.value(1, 's') ||
+                     !('lastWrite' in resource.data);
+    }
+  }
+} 

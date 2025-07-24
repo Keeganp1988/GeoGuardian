@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "138595174234",
+    "project_id": "circlelink-e086e",
+    "storage_bucket": "circlelink-e086e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138595174234:android:30df06c3c8143731835563",
+        "android_client_info": {
+          "package_name": "com.company.CircleLink"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDF-gOlDCHxvjxWR4To8P2hT5pRrf4xJYU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

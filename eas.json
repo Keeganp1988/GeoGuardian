@@ -1,0 +1,78 @@
+{
+  "cli": {
+    "version": ">= 16.13.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAXCamiEZOlF4GwyOCSTuFZ2I2FbZwsrpQ",
+        "EXPO_PUBLIC_AUTH_DOMAIN": "circlelink-e086e.firebaseapp.com",
+        "EXPO_PUBLIC_PROJECT_ID": "circlelink-e086e",
+        "EXPO_PUBLIC_STORAGE_BUCKET": "circlelink-e086e.firebasestorage.app",
+        "EXPO_PUBLIC_MESSAGING_SENDER_ID": "138595174234",
+        "EXPO_PUBLIC_APP_ID": "1:138595174234:web:365617c50be1a176835563",
+        "EXPO_PUBLIC_MEASUREMENT_ID": "G-2M3ZS41LFC",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyCO55aIvQaye9J7Z5AqCVYDPlY1mS4X5LY",
+        "PUBLIC_BUILDER_KEY": "689f134d526c4f97939d4f56c91dcfb1"
+      }
+    },
+    "development-simulator": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAXCamiEZOlF4GwyOCSTuFZ2I2FbZwsrpQ",
+        "EXPO_PUBLIC_AUTH_DOMAIN": "circlelink-e086e.firebaseapp.com",
+        "EXPO_PUBLIC_PROJECT_ID": "circlelink-e086e",
+        "EXPO_PUBLIC_STORAGE_BUCKET": "circlelink-e086e.firebasestorage.app",
+        "EXPO_PUBLIC_MESSAGING_SENDER_ID": "138595174234",
+        "EXPO_PUBLIC_APP_ID": "1:138595174234:web:365617c50be1a176835563",
+        "EXPO_PUBLIC_MEASUREMENT_ID": "G-2M3ZS41LFC",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyCO55aIvQaye9J7Z5AqCVYDPlY1mS4X5LY",
+        "PUBLIC_BUILDER_KEY": "689f134d526c4f97939d4f56c91dcfb1"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAXCamiEZOlF4GwyOCSTuFZ2I2FbZwsrpQ",
+        "EXPO_PUBLIC_AUTH_DOMAIN": "circlelink-e086e.firebaseapp.com",
+        "EXPO_PUBLIC_PROJECT_ID": "circlelink-e086e",
+        "EXPO_PUBLIC_STORAGE_BUCKET": "circlelink-e086e.firebasestorage.app",
+        "EXPO_PUBLIC_MESSAGING_SENDER_ID": "138595174234",
+        "EXPO_PUBLIC_APP_ID": "1:138595174234:web:365617c50be1a176835563",
+        "EXPO_PUBLIC_MEASUREMENT_ID": "G-2M3ZS41LFC",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyCO55aIvQaye9J7Z5AqCVYDPlY1mS4X5LY",
+        "PUBLIC_BUILDER_KEY": "689f134d526c4f97939d4f56c91dcfb1"
+      }
+    },
+    "production": {
+      "autoIncrement": true, 
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAXCamiEZOlF4GwyOCSTuFZ2I2FbZwsrpQ",
+        "EXPO_PUBLIC_AUTH_DOMAIN": "circlelink-e086e.firebaseapp.com",
+        "EXPO_PUBLIC_PROJECT_ID": "circlelink-e086e",
+        "EXPO_PUBLIC_STORAGE_BUCKET": "circlelink-e086e.firebasestorage.app",
+        "EXPO_PUBLIC_MESSAGING_SENDER_ID": "138595174234",
+        "EXPO_PUBLIC_APP_ID": "1:138595174234:web:365617c50be1a176835563",
+        "EXPO_PUBLIC_MEASUREMENT_ID": "G-2M3ZS41LFC",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyCO55aIvQaye9J7Z5AqCVYDPlY1mS4X5LY",
+        "PUBLIC_BUILDER_KEY": "689f134d526c4f97939d4f56c91dcfb1"
+      }
+    },
+    "simulator": {
+      "extends": "development",
+      "ios": {
+        "simulator": true
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
