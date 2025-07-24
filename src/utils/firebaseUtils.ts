@@ -140,7 +140,7 @@ export class FirebaseUtils {
     try {
       const batch = writeBatch(this.db);
       
-      operations.forEach(({ type, ref, data }) => {
+      (operations ?? []).forEach(({ type, ref, data }) => {
         switch (type) {
           case 'set':
             if (data) {

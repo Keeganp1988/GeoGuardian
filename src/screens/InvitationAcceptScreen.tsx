@@ -22,7 +22,7 @@ export default function InvitationAcceptScreen() {
   const navigation = useNavigation<RootStackNavigationProp>();
   const route = useRoute<InvitationAcceptRouteProp>();
   const { theme } = useThemeMode();
-  const { user } = useApp();
+  const { state: { user } } = useApp();
   const { setPendingInvitation, clearInvitation, setProcessingInvitation } = useInvitation();
   
   const [inviteInfo, setInviteInfo] = useState<InviteWithUserInfo | null>(null);

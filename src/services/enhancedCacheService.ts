@@ -182,7 +182,7 @@ class EnhancedCacheService {
       const members: CircleMember[] = [];
       
       if (snapshot && snapshot.forEach) {
-        snapshot.forEach((doc) => {
+        (Array.from(snapshot.docs) ?? []).forEach((doc) => {
           const memberData = doc.data() as CircleMember;
           members.push({ ...memberData, id: doc.id });
         });
@@ -253,7 +253,7 @@ class EnhancedCacheService {
     const batchResults = await Promise.allSettled(promises);
     
     if (batchResults && Array.isArray(batchResults)) {
-      batchResults.forEach((result) => {
+      (batchResults ?? []).forEach((result) => {
         if (result.status === 'fulfilled') {
           results[result.value.userId] = result.value.user;
         }
@@ -294,7 +294,7 @@ class EnhancedCacheService {
       const circleIds: string[] = [];
       
       if (snapshot && snapshot.forEach) {
-        snapshot.forEach((doc) => {
+        (Array.from(snapshot.docs) ?? []).forEach((doc) => {
           const memberData = doc.data() as CircleMember;
           circleIds.push(memberData.circleId);
         });
@@ -364,7 +364,7 @@ class EnhancedCacheService {
       const circleIds: string[] = [];
       
       if (snapshot && snapshot.forEach) {
-        snapshot.forEach((doc) => {
+        (Array.from(snapshot.docs) ?? []).forEach((doc) => {
           const memberData = doc.data() as CircleMember;
           circleIds.push(memberData.circleId);
         });
@@ -434,7 +434,7 @@ class EnhancedCacheService {
     const batchResults = await Promise.allSettled(promises);
     
     if (batchResults && Array.isArray(batchResults)) {
-      batchResults.forEach((result) => {
+      (batchResults ?? []).forEach((result) => {
         if (result.status === 'fulfilled') {
           results[result.value.circleId] = result.value.circle;
         }
@@ -526,7 +526,7 @@ class EnhancedCacheService {
     const batchResults = await Promise.allSettled(promises);
     
     if (batchResults && Array.isArray(batchResults)) {
-      batchResults.forEach((result) => {
+      (batchResults ?? []).forEach((result) => {
         if (result.status === 'fulfilled') {
           results[result.value.userId] = result.value.location;
         }
@@ -774,7 +774,7 @@ class EnhancedCacheService {
       const circleIds: string[] = [];
       
       if (snapshot && snapshot.forEach) {
-        snapshot.forEach((doc) => {
+        (Array.from(snapshot.docs) ?? []).forEach((doc) => {
           const memberData = doc.data() as CircleMember;
           circleIds.push(memberData.circleId);
         });

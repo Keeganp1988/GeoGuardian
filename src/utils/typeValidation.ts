@@ -221,7 +221,7 @@ export class TypeValidator {
         return { isValid: false, validItems, errors };
       }
 
-      value.forEach((item, index) => {
+      (value ?? []).forEach((item, index) => {
         if (itemValidator(item)) {
           validItems.push(item);
         } else {

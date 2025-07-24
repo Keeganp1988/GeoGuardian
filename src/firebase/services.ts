@@ -1,15 +1,15 @@
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  getDocs, 
-  query, 
-  where, 
-  onSnapshot, 
-  updateDoc, 
-  deleteDoc, 
-  addDoc, 
+import {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  onSnapshot,
+  updateDoc,
+  deleteDoc,
+  addDoc,
   serverTimestamp,
   orderBy,
   limit,
@@ -178,7 +178,7 @@ export const createUser = async (userData: Omit<User, 'uid' | 'createdAt' | 'las
   try {
     const auth = getFirebaseAuth();
     if (!auth) throw new Error('Firebase Auth not ready');
-    
+
     const userId = auth.currentUser?.uid;
     if (!userId) throw new Error('User not authenticated');
 
@@ -192,7 +192,7 @@ export const createUser = async (userData: Omit<User, 'uid' | 'createdAt' | 'las
 
     const userDoc = getUserDoc(userId);
     if (!userDoc) throw new Error('Firebase not ready');
-    
+
     // Use secure operation with validation and sanitization
     await SecureFirebaseOperations.secureSetDoc(userDoc, user);
     return user;
@@ -210,7 +210,7 @@ export const createUser = async (userData: Omit<User, 'uid' | 'createdAt' | 'las
 export const getUser = async (userId: string): Promise<User | null> => {
   const userDoc = getUserDoc(userId);
   if (!userDoc) throw new Error('Firebase not ready');
-  
+
   const doc = await getDoc(userDoc);
   return doc.exists() ? { uid: doc.id, ...doc.data() } as User : null;
 };
@@ -218,7 +218,7 @@ export const getUser = async (userId: string): Promise<User | null> => {
 export const updateUserOnlineStatus = async (userId: string, isOnline: boolean) => {
   const userDoc = getUserDoc(userId);
   if (!userDoc) throw new Error('Firebase not ready');
-  
+
   await updateDoc(userDoc, {
     isOnline,
     lastSeen: new Date(),
@@ -229,7 +229,7 @@ export const updateUserProfile = async (userId: string, updates: Partial<User>) 
   try {
     const userDoc = getUserDoc(userId);
     if (!userDoc) throw new Error('Firebase not ready');
-    
+
     // Use secure profile update with validation
     await SecureFirebaseOperations.secureUserProfileUpdate(userDoc, {
       ...updates,
@@ -294,10 +294,10 @@ export const getCirclesForUser = async (userId: string): Promise<Circle[]> => {
     collection(getFirebaseDb(), COLLECTIONS.CIRCLE_MEMBERS),
     where('userId', '==', userId)
   );
-  
+
   const memberDocs = await getDocs(membersQuery);
   const circleIds = memberDocs.docs.map(doc => doc.data().circleId);
-  
+
   const circles: Circle[] = [];
   for (const circleId of circleIds) {
     const circleDoc = await getDoc(getCircleDoc(circleId));
@@ -305,7 +305,7 @@ export const getCirclesForUser = async (userId: string): Promise<Circle[]> => {
       circles.push({ id: circleDoc.id, ...circleDoc.data() } as Circle);
     }
   }
-  
+
   return circles;
 };
 
@@ -318,11 +318,11 @@ export const getCircleMembers = async (circleId: string): Promise<CircleMember[]
     const memberDocs = await getDocs(membersQuery);
     const members: CircleMember[] = [];
     const docs = CoreDataSanitizer.getSafeArray(memberDocs.docs, 'getCircleMembers');
-    
+
     for (const memberDoc of docs) {
       try {
         const memberData = CoreDataSanitizer.sanitizeFirebaseDocument(memberDoc.data(), 'memberData');
-        
+
         // Validate required fields
         const validation = TypeValidator.validateFirebaseDocument(memberData, ['circleId', 'userId'], 'CircleMember');
         if (!validation.isValid) {
@@ -348,7 +348,7 @@ export const getCircleMembers = async (circleId: string): Promise<CircleMember[]
             isOnline: false,
           },
         };
-        
+
         members.push(safeMember);
       } catch (memberError) {
         ErrorHandler.logError(
@@ -359,7 +359,7 @@ export const getCircleMembers = async (circleId: string): Promise<CircleMember[]
         );
       }
     }
-    
+
     return CoreDataSanitizer.getSafeArray(members, 'getCircleMembers result');
   } catch (error) {
     ErrorHandler.logError(
@@ -378,23 +378,23 @@ export const joinCircle = async (inviteCode: string, userId: string) => {
     collection(getFirebaseDb(), COLLECTIONS.CIRCLES),
     where('inviteCode', '==', inviteCode)
   );
-  
+
   const circleDocs = await getDocs(circlesQuery);
   if (circleDocs.empty) throw new Error('Invalid invite code');
-  
+
   const circleDoc = circleDocs.docs[0];
   const circleId = circleDoc.id;
-  
+
   // Check if user is already a member
   const existingMemberQuery = query(
     collection(getFirebaseDb(), COLLECTIONS.CIRCLE_MEMBERS),
     where('circleId', '==', circleId),
     where('userId', '==', userId)
   );
-  
+
   const existingMember = await getDocs(existingMemberQuery);
   if (!existingMember.empty) throw new Error('Already a member of this circle');
-  
+
   // Add user as member with denormalized user info
   const userInfo = await getDenormalizedUserInfo(userId);
   await addDoc(collection(getFirebaseDb(), COLLECTIONS.CIRCLE_MEMBERS), {
@@ -404,7 +404,7 @@ export const joinCircle = async (inviteCode: string, userId: string) => {
     joinedAt: serverTimestamp(),
     ...userInfo,
   });
-  
+
   // Update member count
   await updateDoc(getCircleDoc(circleId), {
     memberCount: circleDoc.data().memberCount + 1,
@@ -419,12 +419,12 @@ export const leaveCircle = async (circleId: string, userId: string) => {
     where('circleId', '==', circleId),
     where('userId', '==', userId)
   );
-  
+
   const memberDocs = await getDocs(memberQuery);
   if (!memberDocs.empty) {
     await deleteDoc(memberDocs.docs[0].ref);
   }
-  
+
   // Update member count
   const circleDoc = await getDoc(getCircleDoc(circleId));
   if (circleDoc.exists()) {
@@ -468,7 +468,7 @@ export const updateUserLocation = async (
           updateData.heartbeatTimestamp = locationData.heartbeatTimestamp;
         }
         break;
-      
+
       case 'heartbeat':
         // Heartbeat update - only update heartbeat timestamp and battery
         updateData = {
@@ -484,7 +484,7 @@ export const updateUserLocation = async (
           circleMembers: locationData.circleMembers,
         };
         break;
-      
+
       case 'battery':
         // Battery update - only update battery data and heartbeat timestamp
         updateData = {
@@ -566,14 +566,14 @@ export const getUserLocation = async (userId: string): Promise<LocationData | nu
 export const getCircleMembersLocations = async (circleId: string): Promise<LocationData[]> => {
   const members = await getCircleMembers(circleId);
   const locations: LocationData[] = [];
-  
+
   for (const member of members) {
     const location = await getUserLocation(member.userId);
     if (location) {
       locations.push(location);
     }
   }
-  
+
   return locations;
 };
 
@@ -605,11 +605,11 @@ export const subscribeToCircleMembers = (circleId: string, callback: (members: C
     try {
       const members: CircleMember[] = [];
       const docs = CoreDataSanitizer.getSafeArray(snapshot.docs, 'subscribeToCircleMembers');
-      
+
       for (const memberDoc of docs) {
         try {
           const memberData = CoreDataSanitizer.sanitizeFirebaseDocument(memberDoc.data(), 'memberData');
-          
+
           // Validate required fields
           const validation = TypeValidator.validateFirebaseDocument(memberData, ['circleId', 'userId'], 'CircleMember');
           if (!validation.isValid) {
@@ -635,7 +635,7 @@ export const subscribeToCircleMembers = (circleId: string, callback: (members: C
               isOnline: false,
             },
           };
-          
+
           members.push(safeMember);
         } catch (memberError) {
           ErrorHandler.logError(
@@ -646,7 +646,7 @@ export const subscribeToCircleMembers = (circleId: string, callback: (members: C
           );
         }
       }
-      
+
       // Always call callback with safe array
       callback(CoreDataSanitizer.getSafeArray(members, 'subscribeToCircleMembers callback'));
     } catch (error) {
@@ -669,7 +669,7 @@ export const createEmergencyAlert = async (alertData: Omit<EmergencyAlert, 'id' 
     timestamp: serverTimestamp(),
     status: 'active',
   });
-  
+
   return {
     id: alertRef.id,
     ...alertData,
@@ -692,7 +692,7 @@ export const getActiveEmergencyAlerts = async (circleId: string): Promise<Emerge
     where('status', '==', 'active'),
     orderBy('timestamp', 'desc')
   );
-  
+
   const alertDocs = await getDocs(alertsQuery);
   return alertDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }) as EmergencyAlert);
 };
@@ -822,10 +822,10 @@ export const useInviteLink = async (linkCode: string, userId: string): Promise<U
     const privateConn = privateConnDoc.data();
     // Only allow if user is not already in the connection
     if (privateConn.userA === userId || privateConn.userB === userId) throw new Error('Already in this 1on1 connection');
-    
+
     // Get the other user ID (userA is the creator)
     const otherUserId = privateConn.userA;
-    
+
     // Set userB as the joining user
     await updateDoc(privateConnRef, {
       userB: userId,
@@ -881,9 +881,9 @@ export const cleanupExpiredInviteLinks = async () => {
     where('expiresAt', '<', new Date()),
     where('isUsed', '==', false)
   );
-  
+
   const expiredLinks = await getDocs(expiredLinksQuery);
-  
+
   for (const linkDoc of expiredLinks.docs) {
     await deleteDoc(linkDoc.ref);
   }
@@ -891,7 +891,7 @@ export const cleanupExpiredInviteLinks = async () => {
 
 // Location History Services
 export const saveLocationHistory = async (
-  userId: string, 
+  userId: string,
   locationData: Omit<LocationHistoryEntry, 'id' | 'userId' | 'timestamp' | 'circleMembers'>,
   circleMembers: string[]
 ) => {
@@ -907,7 +907,7 @@ export const saveLocationHistory = async (
       circleMembers,
     }
   );
-  
+
   return {
     id: historyRef.id,
     ...cleanedLocationData,
@@ -918,7 +918,7 @@ export const saveLocationHistory = async (
 };
 
 export const getLocationHistory = async (
-  userId: string, 
+  userId: string,
   limitCount: number = 50
 ): Promise<LocationHistoryEntry[]> => {
   const historyQuery = query(
@@ -926,7 +926,7 @@ export const getLocationHistory = async (
     orderBy('timestamp', 'desc'),
     limit(limitCount)
   );
-  
+
   const historyDocs = await getDocs(historyQuery);
   return historyDocs.docs.map(doc => {
     const data = doc.data();
@@ -949,7 +949,7 @@ export const getLocationHistoryForDateRange = async (
     where('timestamp', '<=', endDate),
     orderBy('timestamp', 'asc')
   );
-  
+
   const historyDocs = await getDocs(historyQuery);
   return historyDocs.docs.map(doc => {
     const data = doc.data();
@@ -975,7 +975,7 @@ export const createTripSummary = async (
       circleMembers,
     }
   );
-  
+
   return {
     id: tripRef.id,
     ...tripData,
@@ -1004,7 +1004,7 @@ export const getTripSummaries = async (
     orderBy('startTime', 'desc'),
     limit(limitCount)
   );
-  
+
   const tripDocs = await getDocs(tripsQuery);
   return tripDocs.docs.map(doc => {
     const data = doc.data();
@@ -1023,10 +1023,10 @@ export const getActiveTrip = async (userId: string): Promise<TripSummary | null>
     where('isActive', '==', true),
     limit(1)
   );
-  
+
   const activeTripDocs = await getDocs(activeTripQuery);
   if (activeTripDocs.empty) return null;
-  
+
   const data = activeTripDocs.docs[0].data();
   return {
     id: activeTripDocs.docs[0].id,
@@ -1069,51 +1069,51 @@ export const calculateDistance = (
 export const formatTimeDisplay = (timestamp: Date): string => {
   const now = new Date();
   const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
-  
+
   // If within 59 minutes, show time only
   if (diffInMinutes <= 59) {
-    return timestamp.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return timestamp.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: false 
+      hour12: false
     });
   }
-  
+
   // Check if it's yesterday
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
   const isYesterday = timestamp.toDateString() === yesterday.toDateString();
-  
+
   if (isYesterday) {
-    return `Yesterday at ${timestamp.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return `Yesterday at ${timestamp.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: false 
+      hour12: false
     })}`;
   }
-  
+
   // Check if it's within the last 7 days
   const weekAgo = new Date(now);
   weekAgo.setDate(weekAgo.getDate() - 7);
-  
+
   if (timestamp > weekAgo) {
     // Show day name and time
     const dayName = timestamp.toLocaleDateString('en-US', { weekday: 'long' });
-    return `${dayName} ${timestamp.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return `${dayName} ${timestamp.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: false 
+      hour12: false
     })}`;
   }
-  
+
   // Show date and time for older entries
-  return `${timestamp.toLocaleDateString('en-US', { 
-    day: '2-digit', 
-    month: '2-digit' 
-  })} ${timestamp.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
+  return `${timestamp.toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: '2-digit'
+  })} ${timestamp.toLocaleTimeString('en-US', {
+    hour: '2-digit',
     minute: '2-digit',
-    hour12: false 
+    hour12: false
   })}`;
 };
 
@@ -1161,11 +1161,11 @@ export const getPrivateConnectionsForUser = async (userId: string): Promise<Priv
   );
   const [snapA, snapB] = await Promise.all([getDocs(q), getDocs(q2)]);
   const results: PrivateConnection[] = [];
-  if (snapA && snapA.forEach) {
-    snapA.forEach(doc => results.push({ id: doc.id, ...doc.data() } as PrivateConnection));
+  if (snapA) {
+    (Array.from(snapA.docs) ?? []).forEach(doc => results.push({ id: doc.id, ...doc.data() } as PrivateConnection));
   }
-  if (snapB && snapB.forEach) {
-    snapB.forEach(doc => results.push({ id: doc.id, ...doc.data() } as PrivateConnection));
+  if (snapB) {
+    (Array.from(snapB.docs) ?? []).forEach(doc => results.push({ id: doc.id, ...doc.data() } as PrivateConnection));
   }
   return results;
 };
@@ -1267,7 +1267,7 @@ export async function sendLowBatteryNotification(userId: string, batteryLevel: n
     // Send notification to each circle member
     const notificationPromises = circleMembers.map(async (memberId) => {
       if (memberId === userId) return; // Don't send notification to self
-      
+
       const notificationRef = doc(collection(getFirebaseDb(), 'users', memberId, 'notifications'));
       await setDoc(notificationRef, notificationData);
     });
@@ -1278,7 +1278,7 @@ export async function sendLowBatteryNotification(userId: string, batteryLevel: n
   } catch (error) {
     console.error('Failed to send low battery notification:', error);
   }
-} 
+}
 
 // User-to-user Alert Types
 export interface UserAlert {
@@ -1358,7 +1358,7 @@ export const createUserAlert = async (alert: Omit<UserAlert, 'id' | 'timestamp' 
   }
 
   return docRef.id;
-}; 
+};
 
 // Enhanced Invite Link Services for Deep Linking
 export interface InviteWithUserInfo extends InviteLink {
@@ -1374,7 +1374,7 @@ export const getInviteWithUserInfo = async (linkCode: string): Promise<InviteWit
   try {
     // First validate the invite link
     const inviteLink = await validateInviteLink(linkCode);
-    
+
     // Get inviter user information
     const inviterUser = await getUser(inviteLink.createdBy);
     if (!inviterUser) {

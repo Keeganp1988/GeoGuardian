@@ -14,7 +14,7 @@ const cacheChangeListeners: Set<CacheChangeListener> = new Set();
 
 // Helper function to notify cache change listeners
 const notifyCacheChange = (key: string, changeType: CacheChangeType) => {
-  cacheChangeListeners.forEach(listener => {
+  (cacheChangeListeners ?? []).forEach(listener => {
     try {
       listener(key, changeType);
     } catch (error) {
@@ -240,7 +240,7 @@ export const batchInvalidateWithRefresh = async (
     }
 
     // Validate each cache key
-    cacheKeys.forEach((key, index) => {
+    (cacheKeys ?? []).forEach((key, index) => {
       Validator.validateOrThrow(key, [
         validationRules.required(`cacheKeys[${index}]`),
         validationRules.string(`cacheKeys[${index}]`)
@@ -251,7 +251,7 @@ export const batchInvalidateWithRefresh = async (
     await AsyncStorage.multiRemove(cacheKeys);
     
     // Notify listeners about each cache invalidation
-    cacheKeys.forEach(key => {
+    (cacheKeys ?? []).forEach(key => {
       notifyCacheChange(key, 'invalidated');
     });
     

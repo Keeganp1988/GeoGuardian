@@ -123,7 +123,7 @@ class AuthStateManagerImpl implements AuthStateManager {
     // Notify all listeners with batched updates
     if (this.listeners && Array.isArray(this.listeners) && this.listeners.length > 0) {
       try {
-        this.listeners.forEach(listener => {
+        (this.listeners ?? []).forEach(listener => {
           try {
             if (typeof listener === 'function') {
               listener(updatesToFlush);

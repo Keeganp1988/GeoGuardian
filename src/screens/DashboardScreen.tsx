@@ -63,7 +63,7 @@ const TAB_BAR_HEIGHT = 56;
 
 const DashboardScreen = React.memo(() => {
   const scrollGestureHandlerRef = useRef(null);
-  const { user } = useApp();
+  const { state: { user } } = useApp();
   const { theme, isThemeReady } = useThemeMode();
 
   // Get theme-aware modal styles

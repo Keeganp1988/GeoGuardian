@@ -74,7 +74,7 @@ type Props = {
 type SortMode = "alphabetical" | "manual" | "recent" | "members";
 
 export default function ConnectionsScreen({ navigation }: Props) {
-  const { user } = useApp();
+  const { state: { user } } = useApp();
   const { theme } = useThemeMode();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);

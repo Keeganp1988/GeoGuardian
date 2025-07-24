@@ -242,9 +242,9 @@ class SyncErrorMonitoringService {
     report += `Last Check: ${healthCheck.lastCheckTime.toISOString()}\n\n`;
 
     // Issues
-    if (healthCheck.issues.length > 0) {
+    if (healthCheck.issues && healthCheck.issues.length > 0) {
       report += '🚨 ISSUES DETECTED:\n';
-      healthCheck.issues.forEach((issue, index) => {
+      (healthCheck.issues ?? []).forEach((issue, index) => {
         const severityIcon = this.getSeverityIcon(issue.severity);
         report += `${index + 1}. ${severityIcon} ${issue.category}: ${issue.description}\n`;
         report += `   Impact: ${issue.impact}\n`;
@@ -253,9 +253,9 @@ class SyncErrorMonitoringService {
     }
 
     // Recommendations
-    if (healthCheck.recommendations.length > 0) {
+    if (healthCheck.recommendations && healthCheck.recommendations.length > 0) {
       report += '💡 RECOMMENDATIONS:\n';
-      healthCheck.recommendations.forEach((rec, index) => {
+      (healthCheck.recommendations ?? []).forEach((rec, index) => {
         report += `${index + 1}. ${rec}\n`;
       });
       report += '\n';
@@ -413,7 +413,7 @@ class SyncErrorMonitoringService {
   private analyzeRecentErrorPatterns(recentErrors: readonly SyncError[]): Array<{ type: string; count: number }> {
     const errorCounts = new Map<string, number>();
 
-    recentErrors.forEach(error => {
+    (recentErrors ?? []).forEach(error => {
       const count = errorCounts.get(error.type) || 0;
       errorCounts.set(error.type, count + 1);
     });

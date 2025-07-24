@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useLayoutEffect } from 'react';
-import { View, Text, Animated, Dimensions } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Animated } from 'react-native';
 import { Ionicons, useThemeMode } from '../utils/sharedImports';
 
 interface SuccessAnimationProps {
@@ -67,6 +67,8 @@ export const SuccessAnimation: React.FC<SuccessAnimationProps> = ({
 
       return () => clearTimeout(animationTimeout);
     }
+
+    return () => { }; // Return cleanup function for all code paths
   }, [isVisible, opacity, scale, translateY, duration, onComplete]);
 
   if (!isVisible) return null;
@@ -183,6 +185,8 @@ export const NewContactAnimation: React.FC<NewContactAnimationProps> = ({
 
       return () => clearTimeout(animationTimeout);
     }
+
+    return () => { }; // Return cleanup function for all code paths
   }, [isVisible, opacity, scale, pulseAnim, onComplete]);
 
   if (!isVisible) return null;

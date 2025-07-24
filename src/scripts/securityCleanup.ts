@@ -19,7 +19,7 @@ export class SecurityCleanup {
       
       if (!auditResult.passed) {
         console.log('⚠️  Security issues found:');
-        auditResult.issues.forEach(issue => {
+        (auditResult.issues ?? []).forEach(issue => {
           console.log(`  - ${issue.severity.toUpperCase()}: ${issue.description}`);
           console.log(`    Recommendation: ${issue.recommendation}\n`);
         });
@@ -33,7 +33,7 @@ export class SecurityCleanup {
       
       if (sensitiveFileIssues.length > 0) {
         console.log('⚠️  Sensitive file issues found:');
-        sensitiveFileIssues.forEach(issue => {
+        (sensitiveFileIssues ?? []).forEach(issue => {
           console.log(`  - ${issue.severity.toUpperCase()}: ${issue.description}`);
           if (issue.location) {
             console.log(`    Location: ${issue.location}`);
@@ -46,7 +46,7 @@ export class SecurityCleanup {
 
       // 3. Generate security recommendations
       console.log('💡 Security Recommendations:');
-      auditResult.recommendations.forEach(recommendation => {
+      (auditResult.recommendations ?? []).forEach(recommendation => {
         console.log(`  - ${recommendation}`);
       });
 

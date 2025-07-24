@@ -362,7 +362,7 @@ export class LocationErrorHandler {
     const errorsByType: Record<string, number> = {};
     let recoveredErrors = 0;
 
-    this.errorHistory.forEach(error => {
+    (this.errorHistory ?? []).forEach(error => {
       errorsByType[error.code] = (errorsByType[error.code] || 0) + 1;
       if (error.recoverable) {
         recoveredErrors++;

@@ -390,7 +390,8 @@ const styles = StyleSheet.create({
 
 function TabNavigator() {
   const { theme } = useThemeMode();
-  const { user } = useApp();
+  const { state } = useApp();
+  const user = state.user;
   const [unreadAlertsCount, setUnreadAlertsCount] = useState(0);
 
   // Subscribe to unread alerts count
@@ -562,7 +563,8 @@ function TabNavigator() {
 }
 
 function AppNavigator() {
-  const { user, isFirebaseReady, authLoadingState } = useApp();
+  const { state, authLoadingState } = useApp();
+  const user = state.user;
   const { theme } = useThemeMode();
 
   // Debug logging to track user state changes
@@ -613,13 +615,11 @@ function AppNavigator() {
     },
   }), []);
 
-  // Show loading screen while Firebase is initializing or during auth transitions
-  if (!isFirebaseReady || authLoadingState === 'initializing') {
-    const loadingMessage = !isFirebaseReady
-      ? 'Initializing secure connection...'
-      : authLoadingState === 'initializing'
-        ? 'Checking saved login...'
-        : 'Loading...';
+  // Show loading screen during auth transitions
+  if (authLoadingState === 'initializing') {
+    const loadingMessage = authLoadingState === 'initializing'
+      ? 'Checking saved login...'
+      : 'Loading...';
 
     return (
       <View style={{

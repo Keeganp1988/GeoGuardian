@@ -203,7 +203,7 @@ export const groupMemberDataByNicknameStatus = (
   const withNicknames: EnhancedMemberData[] = [];
   const withoutNicknames: EnhancedMemberData[] = [];
 
-  memberDataList.forEach(member => {
+  (memberDataList ?? []).forEach(member => {
     if (member.hasNickname) {
       withNicknames.push(member);
     } else {
@@ -222,7 +222,7 @@ export const createMemberDataLookupMap = (
 ): Map<string, EnhancedMemberData> => {
   const lookupMap = new Map<string, EnhancedMemberData>();
 
-  memberDataList.forEach(member => {
+  (memberDataList ?? []).forEach(member => {
     lookupMap.set(member.userId, member);
   });
 

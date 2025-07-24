@@ -52,7 +52,7 @@ class PerformanceMonitor {
     console.log(`🚀 App startup completed in ${totalTime}ms`);
     
     // Log all metrics
-    this.metrics.forEach((metric) => {
+    (this.metrics ?? []).forEach((metric) => {
       if (metric.duration) {
         console.log(`📊 ${metric.name}: ${metric.duration}ms`);
       }

@@ -641,7 +641,7 @@ class PerformanceMonitoringService {
     const summary = this.getPerformanceSummary();
 
     // Generate alerts based on performance issues
-    summary.issues.forEach(issue => {
+    (summary.issues ?? []).forEach(issue => {
       const level = summary.health === 'critical' ? 'critical' : 'warning';
       alerts.push({
         level,
@@ -668,11 +668,11 @@ class PerformanceMonitoringService {
     console.log('[PerformanceMonitor] Cleaning up performance monitoring service');
 
     // Clear all debounced operations
-    this.debouncedOperations.forEach(op => clearTimeout(op.timeout));
+    (Array.from(this.debouncedOperations.values()) ?? []).forEach(op => clearTimeout(op.timeout));
     this.debouncedOperations.clear();
 
     // Clear all batch timeouts
-    this.batchTimeouts.forEach(timeout => clearTimeout(timeout));
+    (Array.from(this.batchTimeouts.values()) ?? []).forEach(timeout => clearTimeout(timeout));
     this.batchTimeouts.clear();
 
     // Clear cleanup interval
@@ -838,7 +838,7 @@ class PerformanceMonitoringService {
   private async batchSubscriptionRefresh(operations: BatchOperation[]): Promise<void> {
     // Group operations by user ID to avoid duplicate refreshes
     const userIds = new Set<string>();
-    operations.forEach(op => {
+    (operations ?? []).forEach(op => {
       if (op.data && typeof op.data === 'object' && 'userId' in op.data) {
         userIds.add((op.data as any).userId);
       }
@@ -861,7 +861,7 @@ class PerformanceMonitoringService {
   private async batchCacheInvalidation(operations: BatchOperation[]): Promise<void> {
     // Collect all cache keys to invalidate
     const cacheKeys = new Set<string>();
-    operations.forEach(op => {
+    (operations ?? []).forEach(op => {
       if (op.data && typeof op.data === 'object' && 'cacheKey' in op.data) {
         cacheKeys.add((op.data as any).cacheKey);
       }
@@ -884,7 +884,7 @@ class PerformanceMonitoringService {
     // Group events by type and emit them
     const eventGroups = new Map<string, any[]>();
 
-    operations.forEach(op => {
+    (operations ?? []).forEach(op => {
       if (op.data && typeof op.data === 'object' && 'eventType' in op.data && 'eventData' in op.data) {
         const { eventType, eventData } = op.data as any;
         if (!eventGroups.has(eventType)) {
@@ -895,7 +895,7 @@ class PerformanceMonitoringService {
     });
 
     // Emit grouped events
-    eventGroups.forEach((eventDataArray, eventType) => {
+    (Array.from(eventGroups.entries()) ?? []).forEach(([eventType, eventDataArray]) => {
       console.log(`[PerformanceMonitor] Batch emitting ${eventDataArray.length} ${eventType} events`);
       eventBus.emit(eventType as any, {
         batchData: eventDataArray,
@@ -1017,24 +1017,24 @@ class PerformanceMonitoringService {
     const now = Date.now();
     const oldTimings: string[] = [];
 
-    this.operationTimings.forEach((timing, id) => {
+    (Array.from(this.operationTimings.entries()) ?? []).forEach(([id, timing]) => {
       if (now - timing.startTime > 60000) { // 1 minute old
         oldTimings.push(id);
       }
     });
 
-    oldTimings.forEach(id => this.operationTimings.delete(id));
+    (oldTimings ?? []).forEach(id => this.operationTimings.delete(id));
 
     // Clean up old debounced operations
     const oldDebounced: string[] = [];
-    this.debouncedOperations.forEach((op, id) => {
+    (Array.from(this.debouncedOperations.entries()) ?? []).forEach(([id, op]) => {
       if (now - op.lastCall.getTime() > 300000) { // 5 minutes old
         clearTimeout(op.timeout);
         oldDebounced.push(id);
       }
     });
 
-    oldDebounced.forEach(id => this.debouncedOperations.delete(id));
+    (oldDebounced ?? []).forEach(id => this.debouncedOperations.delete(id));
 
     // Trim history arrays
     if (this.responseTimeHistory.length > this.memoryConfig.maxEventHistory) {
@@ -1060,22 +1060,22 @@ class PerformanceMonitoringService {
 
     // More aggressive cleanup for operation timings (30 seconds instead of 1 minute)
     const oldTimings: string[] = [];
-    this.operationTimings.forEach((timing, id) => {
+    (Array.from(this.operationTimings.entries()) ?? []).forEach(([id, timing]) => {
       if (now - timing.startTime > 30000) { // 30 seconds old
         oldTimings.push(id);
       }
     });
-    oldTimings.forEach(id => this.operationTimings.delete(id));
+    (oldTimings ?? []).forEach(id => this.operationTimings.delete(id));
 
     // More aggressive cleanup for debounced operations (2 minutes instead of 5 minutes)
     const oldDebounced: string[] = [];
-    this.debouncedOperations.forEach((op, id) => {
+    (Array.from(this.debouncedOperations.entries()) ?? []).forEach(([id, op]) => {
       if (now - op.lastCall.getTime() > 120000) { // 2 minutes old
         clearTimeout(op.timeout);
         oldDebounced.push(id);
       }
     });
-    oldDebounced.forEach(id => this.debouncedOperations.delete(id));
+    (oldDebounced ?? []).forEach(id => this.debouncedOperations.delete(id));
 
     // Trim history arrays to 75% of max size
     const targetHistorySize = Math.floor(this.memoryConfig.maxEventHistory * 0.75);
@@ -1092,7 +1092,7 @@ class PerformanceMonitoringService {
 
     // Clear old batch operations
     const oldBatches: string[] = [];
-    this.batchQueues.forEach((operations, batchType) => {
+    (Array.from(this.batchQueues.entries()) ?? []).forEach(([batchType, operations]) => {
       const filteredOps = operations.filter(op =>
         now - op.timestamp.getTime() < 60000 // Keep operations less than 1 minute old
       );

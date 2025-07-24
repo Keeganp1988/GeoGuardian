@@ -26,7 +26,7 @@ class EventBusService {
         // Create a copy of listeners to avoid issues if listeners are modified during emission
         const listenersArray = Array.from(eventListeners);
 
-        listenersArray.forEach(callback => {
+        (listenersArray ?? []).forEach(callback => {
             try {
                 callback(data);
             } catch (error) {

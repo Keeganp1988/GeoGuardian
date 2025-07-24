@@ -25,7 +25,7 @@ const GPSWarning: React.FC<GPSWarningProps> = ({ style, onPermissionChange }) =>
   });
   const [isSettingsNavigationInProgress, setIsSettingsNavigationInProgress] = useState(false);
   const { theme } = useThemeMode();
-  const { user } = useApp();
+  const { state: { user } } = useApp();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 

@@ -68,7 +68,7 @@ export const createSubscriptionManager = () => {
 
     cleanup: () => {
       if (subscriptions && Array.isArray(subscriptions)) {
-        subscriptions.forEach(unsubscribe => {
+        (subscriptions ?? []).forEach(unsubscribe => {
           try {
             unsubscribe();
           } catch (error) {
@@ -183,7 +183,7 @@ export const createServiceState = <T>(initialState: T) => {
 
     setState: (newState: Partial<T>) => {
       state = { ...state, ...newState };
-      listeners.forEach(listener => {
+      (listeners ?? []).forEach(listener => {
         try {
           listener(state);
         } catch (error) {
@@ -206,7 +206,7 @@ export const createServiceState = <T>(initialState: T) => {
 
     reset: () => {
       state = initialState;
-      listeners.forEach(listener => {
+      (listeners ?? []).forEach(listener => {
         try {
           listener(state);
         } catch (error) {

@@ -373,7 +373,7 @@ export class CoreSystemValidator {
     console.log(`Success Rate: ${((summary.passed / summary.total) * 100).toFixed(1)}%\n`);
 
     console.log('📋 Detailed Results:');
-    results.forEach((result, index) => {
+    (results ?? []).forEach((result, index) => {
       const icon = result.status === 'pass' ? '✅' : result.status === 'fail' ? '❌' : '⚠️';
       console.log(`${index + 1}. ${icon} [${result.component}] ${result.message}`);
       if (result.details) {

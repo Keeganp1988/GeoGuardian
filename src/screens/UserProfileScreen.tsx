@@ -10,18 +10,15 @@ import {
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import { useApp } from "../contexts/AppContext";
 import { changeUserPassword } from '../firebase/services';
 import { useThemeMode } from '../contexts/ThemeContext';
 import CustomHeader from '../components/CustomHeader';
 import PasswordInput from '../components/PasswordInput';
-import { RootStackNavigationProp } from '../types/navigation';
 
 const UserProfileScreen = React.memo(() => {
-  const { user, logOut } = useApp();
+  const { state: { user }, logout } = useApp();
   const { theme } = useThemeMode();
-  const navigation = useNavigation<RootStackNavigationProp>();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
@@ -52,8 +49,8 @@ const UserProfileScreen = React.memo(() => {
     setLogoutLoading(true);
 
     try {
-      console.log('[UserProfileScreen] Calling logOut function...');
-      await logOut();
+      console.log('[UserProfileScreen] Calling logout function...');
+      await logout();
       console.log('[UserProfileScreen] Logout successful');
 
       // Reset states after successful logout
@@ -82,7 +79,11 @@ const UserProfileScreen = React.memo(() => {
             onPress: () => {
               // Force logout by calling it again
               console.log('[UserProfileScreen] Forcing logout after error...');
-              logOut().catch(e => console.error('[UserProfileScreen] Force logout also failed:', e));
+              try {
+                logout();
+              } catch (e: any) {
+                console.error('[UserProfileScreen] Force logout also failed:', e);
+              }
             }
           }
         ]
@@ -203,10 +204,10 @@ const UserProfileScreen = React.memo(() => {
                       { text: 'Cancel', style: 'cancel' },
                       {
                         text: 'Continue',
-                        onPress: async () => {
+                        onPress: () => {
                           try {
                             // Store a flag to navigate to forgot password after logout
-                            await logOut();
+                            logout();
                             // Navigation to ForgotPassword will happen automatically when user becomes null
                             // The navigation system will handle this transition
                           } catch (error) {

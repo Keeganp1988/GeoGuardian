@@ -88,7 +88,7 @@ export function multipleListenersExample() {
   // Cleanup function to unsubscribe from all events
   const cleanup = () => {
     if (subscriptions && Array.isArray(subscriptions)) {
-      subscriptions.forEach(sub => sub.unsubscribe());
+      (subscriptions ?? []).forEach(sub => sub.unsubscribe());
     }
   };
 
@@ -152,7 +152,7 @@ export class ExampleService {
   // Cleanup method
   public destroy() {
     if (this.subscriptions && Array.isArray(this.subscriptions)) {
-      this.subscriptions.forEach(sub => sub.unsubscribe());
+      (this.subscriptions ?? []).forEach(sub => sub.unsubscribe());
     }
     this.subscriptions = [];
   }

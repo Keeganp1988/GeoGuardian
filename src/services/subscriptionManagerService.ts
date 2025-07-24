@@ -310,7 +310,7 @@ class SubscriptionManagerService {
 
     // Remove event listeners
     if (this.eventSubscriptions && Array.isArray(this.eventSubscriptions)) {
-      this.eventSubscriptions.forEach(sub => {
+      (this.eventSubscriptions ?? []).forEach(sub => {
         try {
           sub.unsubscribe();
         } catch (error) {

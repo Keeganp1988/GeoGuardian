@@ -11,7 +11,7 @@ import { useThemeMode } from '../contexts/ThemeContext';
 import { TabNavigationProp } from '../types/navigation';
 
 export default function AlertsScreen() {
-  const { user } = useApp();
+  const { state: { user } } = useApp();
   const { theme, isThemeReady } = useThemeMode();
   const [alerts, setAlerts] = useState<UserAlert[]>([]);
   const [selectedAlert, setSelectedAlert] = useState<UserAlert | null>(null);

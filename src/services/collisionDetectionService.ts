@@ -141,7 +141,7 @@ export class CollisionDetectionService {
         );
 
         // Update the enhanced markers with spacing information
-        spacedMarkers.forEach(spacedMarker => {
+        (spacedMarkers ?? []).forEach(spacedMarker => {
           const index = enhancedMarkers.findIndex(m => m.id === spacedMarker.id);
           if (index !== -1) {
             enhancedMarkers[index] = spacedMarker;
@@ -296,7 +296,7 @@ export class CollisionDetectionService {
     const enhancedMarkers = this.detectCollisions(markers);
     const groups = new Map<string, EnhancedMarkerData[]>();
 
-    enhancedMarkers.forEach(marker => {
+    (enhancedMarkers ?? []).forEach(marker => {
       if (marker.collisionGroup) {
         if (!groups.has(marker.collisionGroup)) {
           groups.set(marker.collisionGroup, []);

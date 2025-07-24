@@ -14,7 +14,7 @@ type CircleDetailsScreenRouteProp = RouteProp<ConnectionsStackParamList, 'Circle
 export default function CircleDetailsScreen() {
     const navigation = useNavigation<ConnectionsStackNavigationProp>();
     const route = useRoute<CircleDetailsScreenRouteProp>();
-    const { user } = useApp();
+    const { state: { user } } = useApp();
     const [members, setMembers] = useState<FirebaseCircleMember[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionMember, setActionMember] = useState<FirebaseCircleMember | null>(null);

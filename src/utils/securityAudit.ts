@@ -93,7 +93,7 @@ export class SecurityAuditor {
     const issues: SecurityIssue[] = [];
 
     // Check for hardcoded sensitive data patterns
-    this.SENSITIVE_PATTERNS.forEach(pattern => {
+    (this.SENSITIVE_PATTERNS ?? []).forEach(pattern => {
       // In a real implementation, this would scan actual files
       // For now, we'll create a placeholder check
       issues.push({
@@ -131,7 +131,7 @@ export class SecurityAuditor {
     const issues: SecurityIssue[] = [];
 
     // Check for potential injection patterns
-    this.INJECTION_PATTERNS.forEach(pattern => {
+    (this.INJECTION_PATTERNS ?? []).forEach(pattern => {
       issues.push({
         severity: 'high',
         category: 'injection',
@@ -166,7 +166,7 @@ export class SecurityAuditor {
   private static generateRecommendations(issues: SecurityIssue[]): string[] {
     const recommendations = new Set<string>();
 
-    issues.forEach(issue => {
+    (issues ?? []).forEach(issue => {
       recommendations.add(issue.recommendation);
     });
 
@@ -227,7 +227,7 @@ export class SecurityAuditor {
     let sanitized = str;
 
     // Replace sensitive patterns
-    this.SENSITIVE_PATTERNS.forEach(pattern => {
+    (this.SENSITIVE_PATTERNS ?? []).forEach(pattern => {
       sanitized = sanitized.replace(pattern, '[REDACTED]');
     });
 
@@ -237,7 +237,7 @@ export class SecurityAuditor {
     sanitized = sanitized.replace(/api[_-]?key[_-]?\d+/gi, '[REDACTED]');
 
     // Sanitize injection patterns
-    this.INJECTION_PATTERNS.forEach(pattern => {
+    (this.INJECTION_PATTERNS ?? []).forEach(pattern => {
       sanitized = sanitized.replace(pattern, '[SANITIZED]');
     });
 
